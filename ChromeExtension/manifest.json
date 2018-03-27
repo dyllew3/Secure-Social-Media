@@ -1,15 +1,28 @@
 {
-  "manifest_version": 2,
-  "name": "Hello World",
-  "version": "2.1",
-  "minimum_chrome_version": "23",
-  "icons": {
-    "16": "calculator-16.png",
-    "128": "calculator-128.png"
+  "name": "Encryption extension",
+  "version": "1.0",
+  "description": "Allows users to decrypt and encrypt their social media messages.",
+	"permissions": ["tabs","activeTab", "declarativeContent", "storage",
+				   "https://github.com/wwwtyro/cryptico/blob/master/cryptico.js"],
+  "options_page": "options.html",
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
   },
-  "app": {
-    "background": {
-      "scripts": ["main.js"]
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/get_started16.png",
+      "32": "images/get_started32.png",
+      "48": "images/get_started48.png",
+      "128": "images/get_started128.png"
     }
-  }
+  },
+  "icons": {
+    "16": "images/get_started16.png",
+    "32": "images/get_started32.png",
+    "48": "images/get_started48.png",
+    "128": "images/get_started128.png"
+  },
+  "manifest_version": 2
 }
