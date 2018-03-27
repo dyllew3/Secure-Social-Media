@@ -171,7 +171,8 @@ server = http.createServer( function(req, res) {
 			else if (newDict['action'] == Encrypt && 'user' in newDict && 'group' in newDict && 'text' in newDict){
 				var group = newDict['group']; 
 				if(group in Groups && newDict['user'] in Groups[group]['users']){
-					var str = cryptico.decrypt(newDict['text'], RSAKey);
+					var str = cryptico.decrypt(decodeURI(newDict['text']), RSAKey);
+					console.log("string is " + typeof(str.plaintext));
 					var AESKey = Groups[group]['key'];
 					var result = cryptico.encryptAESCBC(str, AESKey);
 					responseText = result;
@@ -189,6 +190,7 @@ server = http.createServer( function(req, res) {
 					var str = newDict['text'];
 					console.log(str);
 					var AESKey = Groups[group]['key'];
+					
 					var pubKey = Groups[group]['users'][user]['key'];
 					var result = cryptico.decryptAESCBC(str, AESKey);
 					console.log(result);

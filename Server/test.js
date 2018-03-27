@@ -13,7 +13,7 @@ const RSAKey = cryptico.generateRSAKey(PassPhrase, Bits);
 function httpGet(theUrl, data)
 {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", encodeURI(theUrl + "?" + data), false ); // false for synchronous request
+    xmlHttp.open( "GET", theUrl+"?" + data, false ); // false for synchronous request
     xmlHttp.send();
     return xmlHttp.responseText;
 }
@@ -25,13 +25,13 @@ function httpPost(theUrl, data){
 
 }
 
-console.log(httpPost("http://localhost:3000", "action=100"));
+console.log(httpGet("http://localhost:3000", "action=100"));
 var key = cryptico.publicKeyString(RSAKey);
-console.log(httpGet("http://localhost:3000","action=202&user=test&pubKey=" +key + "&group=test"));
+console.log(httpGet("http://localhost:3000","action=202&user=test&pubKey=" +encodeURIComponent(key) + "&group=test"));
 
 var text = cryptico.encrypt("this is a test", serverKey).cipher;
 console.log(typeof(text));
-var ciphertext = httpGet("http://localhost:3000","action=300&user=test&text=" + text + "&group=test"); 
+var ciphertext = httpGet("http://localhost:3000","action=300&user=test&text=" + encodeURIComponent(text) + "&group=test"); 
 console.log(ciphertext);
-var plaintext = httpGet("http://localhost:3000", "action=301&user=test&text=" + ciphertext + "&group=test");
-console.log(plaintext);
+//var plaintext = httpGet("http://localhost:3000", "action=301&user=test&text=" + ciphertext + "&group=test");
+//console.log(plaintext);
