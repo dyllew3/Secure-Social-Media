@@ -1,0 +1,1 @@
+var getPost = document.getElementsByClassName("md")[1];

@@ -1,20 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html >
   <head>
     <style>
+	  body{
+	  width:150px;
+	  text-align:center;
+	  }
+	  button{
+	  width:100px;
+	  }
     </style>
   </head>
-  <script src="cryptico.js"></script>
-  <body>
-	<form action="#" id="EncryptForm">
-	  <input type="text" id="Encrypt">
-      <input type="submit" value="Encrypt">
-	</form>
-	<form>
-	  <input type="text" id="Decrypt">
-      <input type="submit" value="Decrypt">
-	</form>
-	<script src="cryptico.min.js"></script>
+  <body id="body">
+	<div id="action">
+	<button type="button" id="login">Login</button>
+	<button type="button" id="user">Set Current User</button>
+	<button type="button" id="removeGroup">Remove from group</button>
+	<button type="button" id="mkgrp">Make Group</button>
+	<button type="button" id="delgrp">Delete Group</button>
+	<button type="button" id="logout">Logout</button>
 	<script src="popup.js"></script>
+	</div>
+	
   </body>
+  
+  <script src="popup.js">
+  </script>
 </html>

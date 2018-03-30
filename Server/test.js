@@ -29,9 +29,6 @@ console.log(httpGet("http://localhost:3000", "action=100"));
 var key = cryptico.publicKeyString(RSAKey);
 console.log(httpGet("http://localhost:3000","action=202&user=test&pubKey=" +encodeURIComponent(key) + "&group=test"));
 
-var text = cryptico.encrypt("wooho it works+++\\s", serverKey).cipher;
-console.log(typeof(text));
-var ciphertext = httpGet("http://localhost:3000","action=300&user=test&text=" + encodeURIComponent(text) + "&group=test");
-console.log(ciphertext);
-var plaintext = httpGet("http://localhost:3000", "action=301&user=test&text=" + encodeURIComponent(ciphertext) + "&group=test");
-console.log(plaintext);
+
+
+

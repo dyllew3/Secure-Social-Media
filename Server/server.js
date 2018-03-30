@@ -10,12 +10,8 @@ const RSAKey = cryptico.generateRSAKey(PassPhrase, Bits);
 
 const SendPubKey = 100;
 
-const CreateUser = 200;
-const CreateKey = 201;
 const CreateGroup = 202;
 
-const DeleteUser = 203;
-const DeleteKey  = 204;
 const DeleteGroup = 205;
 
 const AddUserToGroup = 206;
@@ -42,117 +38,18 @@ server = http.createServer( function(req, res) {
     //console.dir(req.param);
 
     if (req.method == 'POST') {
-        console.log("POST");
-        var body = '';
-        req.on('data', function (data) {
-            body += data;
-        });
-        req.on('end', function () {
-
-			var newDict = getUrlVars(body);
-			console.log(body);
-			console.log(newDict['action'] + " ");
-			var responseText = "Invalid request";
-
-			if ("action" in newDict){
-				if (newDict['action'] == SendPubKey){
-					responseText =  cryptico.publicKeyString(RSAKey);
-				}
-				else if (newDict['action'] == CreateUser && "user" in newDict){
-
-					var pass = newDict["passPhrase"];
-					var newKey = cryptico.generateRSAKey(pass, Bits);
-
-					keys.push({[newDict['user']] : newKey});
-					responseText = cryptico.publicKeyString(newKey);
-
-					var json = JSON.stringify(keys);
-					var fs = require('fs');
-					fs.writeFile('myjsonfile.json', json, 'utf8', function (err) {
-						if (err) throw err;
-						console.log('Saved!');
-					});;
-				}
-				else if(newDict['action'] == CreateGroup && "user" in newDict && "pubKey" in newDict && "groupName" in newDict){
-
-					users = {};
-					users[newDict['user']] = {'role':'admin'};
-
-					admin = users[newDict['user']];
-
-					admin['pubKey'] = newDict['pubKey'];
-					Groups[newDict['groupName']] = {};
-					Groups[newDict['groupName']]['users'] = users;
-					var key = cryptico.generateAESKey();
-					Groups[newDict['groupName']]['key'] = key;
-					responseText = "Created group";
-				}
-				else if (newDict['action'] == Encrypt && 'user' in newDict && 'group' in newDict && 'text' in newDict){
-
-          var group = newDict['group'];
-					if(group in Groups && newDict['user'] in Groups[group]['users']){
-						var str = cryptico.decrypt(newDict['text'], RSAKey);
-						var AESKey = Groups[group]['key'];
-						var result = cryptico.encryptAESCBC(str, AESKey);
-						responseText = result;
-					}
-					else {
-						console.log(" group details");
-						responseText = "invalid details";
-					}
-				}
-				else if (newDict['action'] == Decrypt && 'user' in newDict && 'group' in newDict && 'text' in newDict){
-					var group = newDict['group'];
-					var user = newDict['user'];
-					if(group in Groups && newDict['user'] in Groups[group]){
-
-						var str = decodeURIComponent(newDict['text']);
-						var AESKey = Groups[group]['key'];
-						var pubKey = Groups[group][user]['key'];
-						var result = cryptico.decryptAESCBC(str, AESKey);
-
-						result = cryptico.encrypt(result, pubKey).cipher;
-						responseText = result;
-					}
-					else {
-						responseText = "invalid details";
-					}
-				}
-
-			}
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			res.end(responseText);
-
-		});
-
+		console.log("POST");
     }
     else
     {
         console.log("GET");
 		var responseText = "Invalid Action";
 
-		var body = '';
-        var newDict = url.parse(req.url, true).query;
-		console.log(newDict);
-		//console.log(newDict['action'] + " ");
+		var newDict = url.parse(req.url, true).query;
 		if ("action" in newDict){
+			console.log(newDict['action']);
 			if (newDict['action'] == SendPubKey){
 				responseText =  cryptico.publicKeyString(RSAKey);
-			}
-			else if (newDict['action'] == CreateUser && "user" in newDict){
-
-				var pass = newDict["passPhrase"];
-				var newKey = cryptico.generateRSAKey(pass, Bits);
-
-				keys.push({[newDict['user']] : newKey});
-				responseText = cryptico.publicKeyString(newKey);
-
-				var json = JSON.stringify(keys);
-				var fs = require('fs');
-				fs.writeFile('myjsonfile.json', json, 'utf8', function (err) {
-					if (err) throw err;
-					console.log('Saved!');
-				});;
 			}
 			else if(newDict['action'] == CreateGroup && "user" in newDict && "pubKey" in newDict && "group" in newDict){
 
@@ -165,19 +62,79 @@ server = http.createServer( function(req, res) {
 				Groups[newDict['group']] = {};
 				Groups[newDict['group']]['users'] = users;
 				var key = new Buffer(cryptico.generateAESKey());
-        key = key.toString();
+				key = key.toString();
 				Groups[newDict['group']]['key'] = key;
 				responseText = "Created group";
+			}
+			else if(newDict['action'] == AddUserToGroup){
+					if('admin' in newDict && 'group' in newDict  && 'user' in newDict && 'key' in newDict ){
+						var user = newDict['user'];
+						var admin = newDict['admin'];
+						var group = newDict['group'];
+						var key = newDict['key'];
+						if(group in Groups && admin in Groups[group]['users'] && Groups[group]['users'][admin]['role'] == 'admin'){
+							var users = Groups[group]['users'];
+							users[user] = {'role':'user','key':key};
+							responseText= user + " added to " + group;
+						}
+						else{
+							responseText = "Not admin";
+						}
+					}
+					else{
+						responseText = "Invalid parameters";
+					}
+			}
+			else if(newDict['action'] == RemoveUserFromGroup){
+					if('admin' in newDict && 'group' in newDict  && 'user' in newDict){
+						var user = newDict['user'];
+						var admin = newDict['admin'];
+						var group = newDict['group'];
+						
+						if(group in Groups && admin in Groups[group]['users'] && Groups[group]['users'][admin]['role'] == 'admin'){
+							var users = Groups[group]['users'];
+							delete users[user];
+							responseText= user + " removed from " + group;
+						}
+						else{
+							responseText = "Not admin";
+						}
+					}
+					else{
+						responseText = "Invalid parameters";
+					}
+			}
+			else if(newDict['action'] == DeleteGroup){
+				if('group' in newDict && 'admin' in newDict){
+					var group = newDict['group'];
+					var admin = newDict['admin'];
+					if(group in Groups){
+						if( admin in Groups[group]['users'] && Groups[group]['users'][admin]['role'] == 'admin'){
+							
+							delete Groups[group];
+							console.log(Groups);
+							responseText = group + " has been deleted";
+						}
+						else{
+							responseText = "Not a valid admin";
+						}
+					}
+					else{
+						responseText = "Not valid group";
+					}
+				}
+				else {
+					responseText = "Not enough parameters for request";
+				}
 			}
 			else if (newDict['action'] == Encrypt && 'user' in newDict && 'group' in newDict && 'text' in newDict){
 				var group = newDict['group'];
 				if(group in Groups && newDict['user'] in Groups[group]['users']){
 					var str = cryptico.decrypt(newDict['text'], RSAKey).plaintext;
-					console.log("string is " + str);
 					var key = Groups[group]['key'];
 					var result = CryptoJS.AES.encrypt(str, key).toString();
-          console.log(result);
-          responseText = result;
+					console.log(result);
+					responseText = result;
 				}
 				else {
 					console.log(" group details");
@@ -196,7 +153,7 @@ server = http.createServer( function(req, res) {
 					var pubKey = Groups[group]['users'][user]['key'];
 					var result = CryptoJS.AES.decrypt(str, AESKey).toString(CryptoJS.enc.Utf8);
 					console.log(result);
-					//result = cryptico.encrypt(result, pubKey).cipher;
+					result = cryptico.encrypt(result, pubKey).cipher;
 					responseText = result;
 					console.log("--------------");
 				}
