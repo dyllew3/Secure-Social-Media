@@ -24,11 +24,7 @@ function httpPost(theUrl, data){
   return xmlHttp.responseText;
 
 }
-
+console.log(cryptico.publicKeyString(RSAKey));
 console.log(httpGet("http://localhost:3000", "action=100"));
 var key = cryptico.publicKeyString(RSAKey);
 console.log(httpGet("http://localhost:3000","action=202&user=test&pubKey=" +encodeURIComponent(key) + "&group=test"));
-
-
-
-
