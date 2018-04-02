@@ -5,7 +5,6 @@
 	"permissions": ["tabs","activeTab", "declarativeContent", "storage",
 					"http://localhost:3000/*",
 				   "https://github.com/wwwtyro/cryptico/blob/master/cryptico.js"],
-	"options_page": "options.html",
 	"content_scripts":[
 		{
 			"matches":["https://www.reddit.com/r/*/submit*"],
